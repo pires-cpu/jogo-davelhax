@@ -1,0 +1,319 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background:
+    radial-gradient(circle at top, #2f2f55, #171726);
+
+  overflow: hidden;
+
+  color: white;
+}
+
+.container {
+
+  display: flex;
+  align-items: center;
+  gap: 60px;
+
+  padding: 40px;
+
+  border-radius: 30px;
+
+  background: rgba(255,255,255,0.05);
+
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 0 40px rgba(0,0,0,0.4);
+}
+
+.lado {
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 20px;
+}
+
+.lado h2 {
+
+  font-size: 35px;
+
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.4);
+}
+
+.grade-pecas {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 90px);
+
+  gap: 15px;
+}
+
+.peca {
+
+  width: 90px;
+  height: 90px;
+
+  border-radius: 22px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 54px;
+  font-weight: bold;
+
+  user-select: none;
+
+  cursor: grab;
+
+  position: relative;
+
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+
+  z-index: 10;
+}
+
+.peca:hover {
+
+  transform: scale(1.05);
+}
+
+.x {
+
+  background:
+    linear-gradient(145deg, #4b8dff, #2962ff);
+
+  box-shadow:
+    0 10px 25px rgba(41,98,255,0.45);
+}
+
+.o {
+
+  background:
+    linear-gradient(145deg, #ff4b6e, #ff1744);
+
+  box-shadow:
+    0 10px 25px rgba(255,23,68,0.45);
+}
+
+/* SEGURANDO */
+
+.peca.segurando {
+
+  transform:
+    translateX(-70px)
+    scale(1.05);
+
+  cursor: grabbing;
+
+  z-index: 99999;
+
+  box-shadow:
+    0 25px 45px rgba(0,0,0,0.45);
+}
+
+/* MÃO */
+
+.peca.segurando::after {
+
+  content: "";
+
+  position: absolute;
+
+  width: 170px;
+  height: 170px;
+
+  left: -40px;
+  top: -42px;
+
+  background-image:
+    url("https://static.vecteezy.com/system/resources/thumbnails/010/870/430/small/man-hand-gesture-isolated-png.png");
+
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  pointer-events: none;
+
+  z-index: 100000;
+}
+
+.jogo {
+
+  text-align: center;
+}
+
+h1 {
+
+  font-size: 48px;
+
+  margin-bottom: 10px;
+
+  text-shadow:
+    0 0 18px rgba(255,255,255,0.3);
+}
+
+#status {
+
+  margin-bottom: 15px;
+
+  font-size: 24px;
+
+  color: #d8d8ff;
+}
+
+/* ONLINE */
+
+.modo-online {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.modo-online input {
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  outline: none;
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  font-size: 15px;
+
+  width: 180px;
+}
+
+.modo-online button {
+
+  margin-top: 0;
+}
+
+.tabuleiro {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 130px);
+
+  gap: 14px;
+}
+
+.celula {
+
+  width: 130px;
+  height: 130px;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(145deg, #2c2c48, #23233b);
+
+  border: 3px solid rgba(255,255,255,0.08);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 76px;
+  font-weight: bold;
+
+  transition:
+    0.2s;
+}
+
+.celula:hover {
+
+  transform: scale(1.04);
+
+  border-color:
+    rgba(255,255,255,0.25);
+}
+
+.celula.vencedora {
+
+  background:
+    linear-gradient(145deg, #00e676, #00c853);
+
+  animation:
+    vencedor 0.8s infinite alternate;
+}
+
+@keyframes vencedor {
+
+  from {
+
+    transform: scale(1);
+
+    box-shadow:
+      0 0 12px #00ff73;
+  }
+
+  to {
+
+    transform: scale(1.06);
+
+    box-shadow:
+      0 0 30px #00ff73;
+  }
+}
+
+button {
+
+  margin-top: 25px;
+
+  padding: 14px 25px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(145deg, #00e676, #00c853);
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+button:hover {
+
+  transform: scale(1.06);
+
+  box-shadow:
+    0 0 25px rgba(0,255,115,0.5);
+}

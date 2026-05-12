@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Jogo da Velha</title>
+
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- PEÇAS X -->
+    <div class="lado lado-x">
+
+      <h2>X</h2>
+
+      <div class="grade-pecas">
+
+        <div class="peca x">X</div>
+        <div class="peca x">X</div>
+        <div class="peca x">X</div>
+        <div class="peca x">X</div>
+        <div class="peca x">X</div>
+
+      </div>
+
+    </div>
+
+    <!-- JOGO -->
+    <div class="jogo">
+
+      <h1>Jogo da Velha</h1>
+
+      <h2 id="status">
+        Vez do jogador X
+      </h2>
+
+      <!-- MULTIPLAYER -->
+      <div class="modo-online">
+
+        <button id="hostBtn">
+          Criar Sala
+        </button>
+
+        <button id="joinBtn">
+          Entrar
+        </button>
+
+        <input
+          type="text"
+          id="roomInput"
+          placeholder="Código da sala"
+        >
+
+      </div>
+
+      <!-- TABULEIRO -->
+      <div class="tabuleiro">
+
+        <div class="celula" data-index="0"></div>
+        <div class="celula" data-index="1"></div>
+        <div class="celula" data-index="2"></div>
+
+        <div class="celula" data-index="3"></div>
+        <div class="celula" data-index="4"></div>
+        <div class="celula" data-index="5"></div>
+
+        <div class="celula" data-index="6"></div>
+        <div class="celula" data-index="7"></div>
+        <div class="celula" data-index="8"></div>
+
+      </div>
+
+      <button id="reiniciar">
+        Reiniciar
+      </button>
+
+    </div>
+
+    <!-- PEÇAS O -->
+    <div class="lado lado-o">
+
+      <h2>O</h2>
+
+      <div class="grade-pecas">
+
+        <div class="peca o">O</div>
+        <div class="peca o">O</div>
+        <div class="peca o">O</div>
+        <div class="peca o">O</div>
+        <div class="peca o">O</div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
