@@ -1,325 +1,246 @@
-const pecas = document.querySelectorAll(".peca");
-const celulas = document.querySelectorAll(".celula");
+const celulas =
+  document.querySelectorAll(".celula");
 
 const statusTexto =
   document.getElementById("status");
 
-const botaoReiniciar =
+const reiniciarBtn =
   document.getElementById("reiniciar");
 
-// ONLINE
-const hostBtn =
-  document.getElementById("hostBtn");
+const soloBtn =
+  document.getElementById("soloBtn");
 
-const joinBtn =
-  document.getElementById("joinBtn");
+const multiBtn =
+  document.getElementById("multiBtn");
 
-const roomInput =
-  document.getElementById("roomInput");
+const scoreX =
+  document.getElementById("scoreX");
 
-const canal =
-  new BroadcastChannel(
-    "jogo_da_velha_online"
-  );
+const scoreO =
+  document.getElementById("scoreO");
 
-let roomId = null;
+const drawsText =
+  document.getElementById("draws");
 
-let jogadorAtual = "X";
-
-let jogoAtivo = true;
-
-let estadoJogo = [
+let jogo = [
   "", "", "",
   "", "", "",
   "", "", ""
 ];
 
-const combinacoesVitoria = [
+let jogadorAtual = "X";
+
+let jogoAtivo = true;
+
+let modo = "solo";
+
+let pontosX = 0;
+let pontosO = 0;
+let empates = 0;
+
+const combinacoes = [
+
   [0,1,2],
   [3,4,5],
   [6,7,8],
+
   [0,3,6],
   [1,4,7],
   [2,5,8],
+
   [0,4,8],
   [2,4,6]
+
 ];
 
-let pecaSelecionada = null;
-
 // ======================
-// ONLINE
+// MODOS
 // ======================
 
-hostBtn.addEventListener("click", () => {
+soloBtn.onclick = () => {
 
-  roomId =
-    Math.floor(
-      Math.random() * 99999
-    ).toString();
+  modo = "solo";
 
-  roomInput.value = roomId;
+  soloBtn.classList.add("active");
+  multiBtn.classList.remove("active");
 
-  alert(
-    "Sala criada: " + roomId
-  );
-});
+  reiniciarJogo();
+};
 
-joinBtn.addEventListener("click", () => {
+multiBtn.onclick = () => {
 
-  roomId =
-    roomInput.value;
+  modo = "multi";
 
-  alert(
-    "Entrou na sala: " + roomId
-  );
-});
+  multiBtn.classList.add("active");
+  soloBtn.classList.remove("active");
+
+  reiniciarJogo();
+};
 
 // ======================
-// PEGAR PEÇA
+// CLIQUES
 // ======================
 
-pecas.forEach((peca) => {
+celulas.forEach((celula,index)=>{
 
-  peca.addEventListener("mousedown", (e) => {
+  celula.addEventListener("click",()=>{
 
-    if (!jogoAtivo) return;
-
-    if (
-      peca.classList.contains("usada")
-    ) {
+    if(
+      jogo[index] !== "" ||
+      !jogoAtivo
+    ){
       return;
     }
 
-    const simbolo =
-      peca.textContent;
+    jogar(index,jogadorAtual);
 
-    if (simbolo !== jogadorAtual) {
-      return;
+    if(
+      modo === "solo" &&
+      jogoAtivo &&
+      jogadorAtual === "O"
+    ){
+
+      setTimeout(()=>{
+        roboJoga();
+      },500);
     }
 
-    pecaSelecionada = peca;
-
-    peca.classList.add("segurando");
-
-    peca.style.position = "fixed";
-
-    peca.style.zIndex = "99999";
-
-    moverPeca(
-      e.clientX,
-      e.clientY
-    );
   });
 
 });
 
 // ======================
-// MOVER PEÇA
+// JOGADA
 // ======================
 
-document.addEventListener(
-  "mousemove",
-  (e) => {
+function jogar(index,jogador){
 
-    if (!pecaSelecionada) return;
+  jogo[index] = jogador;
 
-    moverPeca(
-      e.clientX,
-      e.clientY
-    );
+  celulas[index].textContent =
+    jogador;
 
+  celulas[index].classList.add(
+    jogador.toLowerCase()
+  );
+
+  verificarResultado();
+
+  if(jogoAtivo){
+
+    jogadorAtual =
+      jogadorAtual === "X"
+      ? "O"
+      : "X";
+
+    statusTexto.textContent =
+      `Vez do jogador ${jogadorAtual}`;
   }
-);
 
-function moverPeca(mouseX, mouseY) {
-
-  // CURSOR NA PONTA DO DEDO
-  pecaSelecionada.style.left =
-    mouseX - 125 + "px";
-
-  pecaSelecionada.style.top =
-    mouseY - 60 + "px";
 }
 
 // ======================
-// SOLTAR PEÇA
+// ROBÔ
 // ======================
 
-document.addEventListener(
-  "mouseup",
-  () => {
+function roboJoga(){
 
-    if (!pecaSelecionada) return;
+  let jogadasPossiveis = [];
 
-    let colocou = false;
+  jogo.forEach((valor,index)=>{
 
-    const rectPeca =
-      pecaSelecionada.getBoundingClientRect();
-
-    celulas.forEach((celula, index) => {
-
-      if (
-        estadoJogo[index] !== ""
-      ) return;
-
-      const rectCelula =
-        celula.getBoundingClientRect();
-
-      const colidiu = !(
-
-        rectPeca.right <
-        rectCelula.left ||
-
-        rectPeca.left >
-        rectCelula.right ||
-
-        rectPeca.bottom <
-        rectCelula.top ||
-
-        rectPeca.top >
-        rectCelula.bottom
-      );
-
-      if (colidiu && !colocou) {
-
-        colocou = true;
-
-        const simbolo =
-          pecaSelecionada.textContent;
-
-        estadoJogo[index] =
-          simbolo;
-
-        celula.textContent =
-          simbolo;
-
-        // ONLINE
-        if (roomId) {
-
-          canal.postMessage({
-
-            room: roomId,
-
-            estado: estadoJogo,
-
-            jogador: jogadorAtual,
-
-            index: index,
-
-            simbolo: simbolo
-          });
-        }
-
-        pecaSelecionada.classList.add(
-          "usada"
-        );
-
-        pecaSelecionada.style.opacity =
-          "0";
-
-        pecaSelecionada.style.pointerEvents =
-          "none";
-
-        verificarVitoria();
-
-        if (jogoAtivo) {
-
-          jogadorAtual =
-            jogadorAtual === "X"
-            ? "O"
-            : "X";
-
-          statusTexto.textContent =
-            `Vez do jogador ${jogadorAtual}`;
-        }
-      }
-
-    });
-
-    // VOLTA
-    if (!colocou) {
-
-      pecaSelecionada.style.position =
-        "relative";
-
-      pecaSelecionada.style.left =
-        "0px";
-
-      pecaSelecionada.style.top =
-        "0px";
-
-      pecaSelecionada.style.zIndex =
-        "10";
+    if(valor === ""){
+      jogadasPossiveis.push(index);
     }
 
-    pecaSelecionada.classList.remove(
-      "segurando"
-    );
+  });
 
-    pecaSelecionada = null;
-
-  }
-);
-
-// ======================
-// RECEBER ONLINE
-// ======================
-
-canal.onmessage = (evento) => {
-
-  const dados =
-    evento.data;
-
-  if (!roomId) return;
-
-  if (dados.room !== roomId) {
+  if(jogadasPossiveis.length === 0){
     return;
   }
 
-  estadoJogo =
-    dados.estado;
+  // TENTA GANHAR
+  for(let i of jogadasPossiveis){
 
-  celulas[
-    dados.index
-  ].textContent =
-    dados.simbolo;
+    jogo[i] = "O";
 
-  verificarVitoria();
+    if(verificarVencedor("O")){
 
-  jogadorAtual =
-    dados.jogador === "X"
-    ? "O"
-    : "X";
+      jogo[i] = "";
 
-  statusTexto.textContent =
-    `Vez do jogador ${jogadorAtual}`;
-};
+      jogar(i,"O");
+
+      return;
+    }
+
+    jogo[i] = "";
+  }
+
+  // BLOQUEIA PLAYER
+  for(let i of jogadasPossiveis){
+
+    jogo[i] = "X";
+
+    if(verificarVencedor("X")){
+
+      jogo[i] = "";
+
+      jogar(i,"O");
+
+      return;
+    }
+
+    jogo[i] = "";
+  }
+
+  // JOGADA ALEATÓRIA
+  const aleatorio =
+
+    jogadasPossiveis[
+      Math.floor(
+        Math.random() *
+        jogadasPossiveis.length
+      )
+    ];
+
+  jogar(aleatorio,"O");
+}
 
 // ======================
-// VITÓRIA
+// VERIFICAR VENCEDOR
 // ======================
 
-function verificarVitoria() {
+function verificarVencedor(jogador){
 
-  for (
-    let combinacao
-    of combinacoesVitoria
-  ) {
+  return combinacoes.some(comb=>{
 
-    const [a, b, c] =
-      combinacao;
+    return comb.every(index=>{
 
-    if (
+      return jogo[index] === jogador;
 
-      estadoJogo[a] &&
-      estadoJogo[a] ===
-      estadoJogo[b] &&
+    });
 
-      estadoJogo[a] ===
-      estadoJogo[c]
+  });
 
-    ) {
+}
+
+// ======================
+// RESULTADO
+// ======================
+
+function verificarResultado(){
+
+  for(let combinacao of combinacoes){
+
+    const [a,b,c] = combinacao;
+
+    if(
+
+      jogo[a] &&
+      jogo[a] === jogo[b] &&
+      jogo[a] === jogo[c]
+
+    ){
 
       jogoAtivo = false;
 
@@ -336,33 +257,65 @@ function verificarVitoria() {
       );
 
       statusTexto.textContent =
-        `Jogador ${estadoJogo[a]} venceu!`;
+        `Jogador ${jogo[a]} venceu!`;
+
+      if(jogo[a] === "X"){
+        pontosX++;
+      }
+
+      else{
+        pontosO++;
+      }
+
+      atualizarPlacar();
 
       return;
     }
+
   }
 
-  if (
-    !estadoJogo.includes("")
-  ) {
+  if(!jogo.includes("")){
 
     jogoAtivo = false;
+
+    empates++;
+
+    atualizarPlacar();
 
     statusTexto.textContent =
       "Empate!";
   }
+
+}
+
+// ======================
+// PLACAR
+// ======================
+
+function atualizarPlacar(){
+
+  scoreX.textContent =
+    pontosX;
+
+  scoreO.textContent =
+    pontosO;
+
+  drawsText.textContent =
+    empates;
 }
 
 // ======================
 // REINICIAR
 // ======================
 
-function reiniciarJogo() {
+function reiniciarJogo(){
 
-  estadoJogo = [
+  jogo = [
+
     "", "", "",
     "", "", "",
     "", "", ""
+
   ];
 
   jogadorAtual = "X";
@@ -372,43 +325,21 @@ function reiniciarJogo() {
   statusTexto.textContent =
     "Vez do jogador X";
 
-  celulas.forEach((celula) => {
+  celulas.forEach(celula=>{
 
     celula.textContent = "";
 
     celula.classList.remove(
+      "x",
+      "o",
       "vencedora"
     );
-  });
 
-  pecas.forEach((peca) => {
-
-    peca.classList.remove(
-      "usada",
-      "segurando"
-    );
-
-    peca.style.opacity = "1";
-
-    peca.style.pointerEvents =
-      "auto";
-
-    peca.style.position =
-      "relative";
-
-    peca.style.left =
-      "0px";
-
-    peca.style.top =
-      "0px";
-
-    peca.style.zIndex =
-      "10";
   });
 
 }
 
-botaoReiniciar.addEventListener(
+reiniciarBtn.addEventListener(
   "click",
   reiniciarJogo
 );
